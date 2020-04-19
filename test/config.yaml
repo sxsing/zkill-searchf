@@ -1,6 +1,7 @@
 ---
-  ship: 17720
-  item: 
-    - [2897]
-    - 542
+  ship: 17720  # ship id
+  item:
+    - [2897, 9127]  # put item id(s) in list
+    - 542  # market group id
     - 131
+  fetch-limit: 10  # maximum number of outputs to be displayed

@@ -6,8 +6,13 @@ import aiohttp
 
 async def fetch_json(url):
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-        async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as response:
-            return await response.json(content_type=None)
+        for i in range(5):
+            try:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as response:
+                    return await response.json(content_type=None)
+            except asyncio.TimeoutError:
+                continue
+        raise asyncio.TimeoutError
 
 async def name_worker(type_id):
     url = 'https://esi.evetech.net/latest/universe/types/{}'.format(type_id)
@@ -58,7 +63,10 @@ async def esi_worker(km_queue, config, task_li, worker_stat):
         km_id = zkill_km['killmail_id']
         km_hash = zkill_km['zkb']['hash']
         url = 'https://esi.evetech.net/latest/killmails/{}/{}'.format(km_id, km_hash)
-        response = await fetch_json(url)
+        try:
+            response = await fetch_json(url)
+        except asyncio.TimeoutError:
+            continue
         fitting_li = [item['item_type_id'] for item in response['victim']['items'] if is_fitted(item)]
         is_km_accepted = True
         for item_block in item_block_li:

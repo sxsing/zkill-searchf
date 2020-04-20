@@ -7,7 +7,7 @@ import aiohttp
 async def fetch_json(url):
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as response:
-            return await response.json()
+            return await response.json(content_type=None)
 
 async def name_worker(type_id):
     url = 'https://esi.evetech.net/latest/universe/types/{}'.format(type_id)
@@ -110,4 +110,8 @@ async def main():
         .format(worker_stat['output'], worker_stat['total'])
     )
 
-asyncio.run(main())
+def cli_entry_point():
+    asyncio.run(main())
+
+if __name__ == '__main__':
+    asyncio.run(main())
